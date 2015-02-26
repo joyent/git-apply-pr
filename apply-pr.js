@@ -41,13 +41,26 @@ if (!process.argv[2]) {
   exitWithMsg('Usage example: git-apply-pr joyent/node#1337');
 }
 
-var args = /(.*)\/(.*)#(\d*)/i.exec(process.argv[2]);
-if (!args) {
+var ENABLE_PLUS_ONE = false;
+var ownerRepoPrArg;
+process.argv.slice(2).forEach(function(arg) {
+  if (!/^\-\-/.test(arg)) {
+    ownerRepoPrArg = arg;
+    return;
+  }
+  if (/^\-\-plusone/.test(arg)) {
+    ENABLE_PLUS_ONE = true;
+    return;
+  }
+});
+
+var ownerRepoPr = /(.*)\/(.*)#(\d*)/i.exec(ownerRepoPrArg);
+if (!ownerRepoPr) {
   exitWithMsg('Usage example: git-apply-pr joyent/node#1337');
 }
-var OWNER = args[1];
-var REPO = args[2];
-var PR = +args[3];
+var OWNER = ownerRepoPr[1];
+var REPO = ownerRepoPr[2];
+var PR = +ownerRepoPr[3];
 var HOST = 'github.com';
 
 var github = new (require('github'))({
@@ -105,7 +118,7 @@ function getComments(page, next) {
     var reviews = OUTPUT['Reviewed-By'];
 
     comments.forEach(function (comment) {
-      if (/lgtm/i.test(comment.body)) {
+      if (/lgtm/i.test(comment.body) || maybeTestForPlusone(comment.body)) {
         var val = reviews[comment.user.login] || 0;
         reviews[comment.user.login] = val + 1;
       }
@@ -116,6 +129,14 @@ function getComments(page, next) {
     else
       getComments(page + 1, next);
   });
+}
+
+function maybeTestForPlusone(comment) {
+  if (!ENABLE_PLUS_ONE) {
+    return false;
+  }
+
+  return /\+1/.test(comment);
 }
 
 function resolveNames() {
