@@ -37,9 +37,11 @@ var Transform = require('stream').Transform;
 
 var lstream = require('lstream');
 
+var args = /(.*)\/(.*)#(\d*)/i.exec(process.argv[2]);
+var OWNER = args[1];
+var REPO = args[2];
+var PR = +args[3];
 var HOST = 'github.com';
-var OWNER = 'joyent';
-var REPO = 'node';
 
 var github = new (require('github'))({
   version: '3.0.0',
@@ -62,13 +64,16 @@ if (fs.existsSync(config)) {
   }
 }
 
-var PR = +process.argv[2];
-
-//GET /repos/:owner/:repo/pulls/:number
-
 if (typeof(PR) !== 'number' || PR < 1) {
-  console.error('PR must be a positive number');
-  process.exit(1);
+  exitWithMsg('PR must be a positive number');
+}
+
+if (typeof(OWNER) !== 'string' || OWNER.length < 1) {
+  exitWithMsg('OWNER must be a string');
+}
+
+if (typeof(REPO) !== 'string' || REPO.length < 1) {
+  exitWithMsg('REPO must be a string');
 }
 
 var OUTPUT = {
@@ -77,6 +82,7 @@ var OUTPUT = {
   'Reviewed-By': {},
 };
 
+//GET /repos/:owner/:repo/pulls/:number
 function getComments(page, next) {
   github.issues.getComments({
     user: OWNER,
@@ -86,8 +92,7 @@ function getComments(page, next) {
     page: page,
   }, function gotComments(err, comments) {
     if (err) {
-      console.error(err);
-      process.exit(1);
+      exitWithMsg(err);
     }
 
     var reviews = OUTPUT['Reviewed-By'];
@@ -113,8 +118,7 @@ function resolveNames() {
 
   function resolve(err, name) {
     if (err) {
-      console.error(err);
-      process.exit(1);
+      exitWithMsg(err);
     }
 
     result.push(util.format('%s <%s>', name.name, name.email));
@@ -124,8 +128,7 @@ function resolveNames() {
   }
 
   if (!queue.length) {
-    console.error('this PR has not been LGTMd');
-    process.exit(1);
+    exitWithMsg('this PR has not been LGTMd');
   }
 
   queue.forEach(function(name) {
@@ -209,3 +212,8 @@ Mutator.prototype._transform = function mutatorTransform(chunk, encoding, done) 
 
   done();
 };
+
+function exitWithMsg(msg) {
+  console.error(msg);
+  process.exit(1);
+}
