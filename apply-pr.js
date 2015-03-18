@@ -37,7 +37,14 @@ var Transform = require('stream').Transform;
 
 var lstream = require('lstream');
 
+if (!process.argv[2]) {
+  exitWithMsg('Usage example: git-apply-pr joyent/node#1337');
+}
+
 var args = /(.*)\/(.*)#(\d*)/i.exec(process.argv[2]);
+if (!args) {
+  exitWithMsg('Usage example: git-apply-pr joyent/node#1337');
+}
 var OWNER = args[1];
 var REPO = args[2];
 var PR = +args[3];
