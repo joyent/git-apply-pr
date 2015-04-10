@@ -6,5 +6,5 @@ the PR-url.
 Example usage:
 
 ```
-git-apply-pr joyent/node#1337
+git-apply-pr joyent/git-apply-pr#4
 ```
