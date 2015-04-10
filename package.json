@@ -5,9 +5,9 @@
   "main": "apply-pr.js",
   "dependencies": {
     "github": "~0.2.3",
-    "lstream": "~0.0.4"
+    "lstream": "~0.0.4",
+    "request": "~2.55.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
