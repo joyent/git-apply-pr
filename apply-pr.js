@@ -27,7 +27,6 @@
 "use strict";
 
 var fs = require('fs');
-var https = require('https');
 var os = require('os');
 var path = require('path');
 var spawn = require('child_process').spawn;
@@ -36,6 +35,7 @@ var util = require('util');
 var Transform = require('stream').Transform;
 
 var lstream = require('lstream');
+var request = require('request');
 
 if (!process.argv[2]) {
   exitWithMsg('Usage example: git-apply-pr joyent/node#1337');
@@ -85,7 +85,7 @@ if (typeof(REPO) !== 'string' || REPO.length < 1) {
 
 var OUTPUT = {
   'PR': util.format('#%d', PR),
-  'PR-URL': util.format('/%s/%s/pull/%d', OWNER, REPO, PR),
+  'PR-URL': util.format('https://%s/%s/%s/pull/%d', HOST, OWNER, REPO, PR),
   'Reviewed-By': {},
 };
 
@@ -144,13 +144,12 @@ function resolveNames() {
 }
 
 function applyPatch() {
-  var req = https.request({
-    hostname: HOST,
-    path: OUTPUT['PR-URL'] + '.patch',
-  }, function patchResponse(res) {
-    res.pipe(new lstream()).pipe(new Mutator()).pipe(process.stdout);
-  });
-  req.end();
+  request({
+    uri: OUTPUT['PR-URL'] + '.patch',
+    followAllRedirects: true
+  })
+  .pipe(new lstream()).pipe(new Mutator()).pipe(process.stdout);
+
 }
 
 getComments(1, resolveNames);
@@ -186,7 +185,7 @@ Mutator.prototype._transform = function mutatorTransform(chunk, encoding, done) 
           this.m_message.push('');
 
         this.m_message.push(util.format('PR: %s', OUTPUT['PR']));
-        this.m_message.push(util.format('PR-URL: https://%s%s', HOST, OUTPUT['PR-URL']));
+        this.m_message.push(util.format('PR-URL: %s', OUTPUT['PR-URL']));
 
         var self = this;
 
