@@ -222,9 +222,11 @@ Mutator.prototype._transform = function mutatorTransform(chunk, encoding, done) 
       }
       break;
     case 'BODY':
-      if (/^From /.test(chunk))
+      if (/^From /.test(chunk)) {
+        // Process the next commit in this PR
         this.m_state = 'HEADER';
-      else {
+        this.m_message = [];
+      } else {
         this.push(chunk + os.EOL);
         done();
         return;
