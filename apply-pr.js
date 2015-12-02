@@ -104,7 +104,7 @@ var OUTPUT = {
 
 //GET /repos/:owner/:repo/pulls/:number
 function getComments(page, next) {
-  github.issues.getComments({
+  github.pullRequests.getComments({
     user: OWNER,
     repo: REPO,
     number: PR,
