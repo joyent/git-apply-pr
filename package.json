@@ -1,6 +1,6 @@
 {
   "name": "git-apply-pr",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Apply GitHub Pull Requests",
   "main": "apply-pr.js",
   "dependencies": {
