@@ -149,6 +149,10 @@ function resolveNames() {
       exitWithMsg(err);
     }
 
+    if (!name.email) {
+      exitWithMsg(util.format('Email not set for %s', name.name));
+    }
+
     result.push(util.format('%s <%s>', name.name, name.email));
 
     if (result.length === queue.length)
