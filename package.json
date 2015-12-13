@@ -4,12 +4,13 @@
   "description": "Apply GitHub Pull Requests",
   "main": "apply-pr.js",
   "dependencies": {
+    "async": "^1.5.0",
     "github": "~0.2.3",
     "lstream": "~0.0.4",
     "request": "~2.55.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap test/*.js"
   },
   "repository": {
     "type": "git",
@@ -28,5 +29,9 @@
   "bin": {
     "git-apply-pr": "./apply-pr.js"
   },
-  "homepage": "https://github.com/joyent/git-apply-pr"
+  "homepage": "https://github.com/joyent/git-apply-pr",
+  "devDependencies": {
+    "nock": "^3.4.0",
+    "tap": "^2.3.1"
+  }
 }
